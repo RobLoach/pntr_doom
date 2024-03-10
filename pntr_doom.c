@@ -12,7 +12,10 @@
 #include "vendor/PureDOOM/PureDOOM.h"
 
 bool keepRunning;
+
+#ifdef PNTR_APP_SDL
 SDL_AudioSpec audio_spec;
+#endif
 
 char* pntr_doom_getenv(const char* var) {
     if (strcmp(var, "HOME") == 0) {
@@ -36,16 +39,19 @@ void pntr_doom_exit(int code) {
 
 void audio_callback(void* userdata, Uint8* stream, int len)
 {
+    #ifdef PNTR_APP_SDL
     SDL_LockAudio();
     int16_t* buffer = doom_get_sound_buffer();
     SDL_UnlockAudio();
 
     pntr_memory_copy(stream, buffer, len);
+    #endif
 }
 
 bool Init(pntr_app* app) {
     keepRunning = true;
 
+    #ifdef PNTR_APP_SDL
     // Capture mouse
     SDL_SetRelativeMouseMode(SDL_TRUE);
 
@@ -63,14 +69,19 @@ bool Init(pntr_app* app) {
     }
 
     SDL_PauseAudio(0);
+    #endif
 
     return true;
 }
 
 bool Update(pntr_app* app, pntr_image* screen) {
+    #ifdef PNTR_APP_SDL
     SDL_LockAudio();
     doom_update();
     SDL_UnlockAudio();
+    #else
+    doom_update();
+    #endif
 
     // Render
     const uint8_t* framebuffer = doom_get_framebuffer(4);
@@ -78,15 +89,19 @@ bool Update(pntr_app* app, pntr_image* screen) {
     pntr_draw_image(screen, image, 0, 0);
     pntr_unload_image(image);
 
+    #ifdef PNTR_APP_SDL
     int x, y;
     SDL_GetRelativeMouseState(&x, &y);
     doom_mouse_move(x * 4, y * 4);
+    #endif
 
     return keepRunning;
 }
 
 void Close(pntr_app* app) {
+    #ifdef PNTR_APP_SDL
     SDL_SetRelativeMouseMode(SDL_FALSE);
+    #endif
 }
 
 doom_key_t pntr_doom_key(pntr_app_key key) {
