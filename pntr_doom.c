@@ -75,6 +75,14 @@ bool Init(pntr_app* app) {
 
 bool Update(pntr_app* app, pntr_image* screen) {
     #ifdef PNTR_APP_SDL
+    int x, y;
+    SDL_GetRelativeMouseState(&x, &y);
+    doom_mouse_move(x * 4, y * 4);
+    #else
+    doom_mouse_move(-pntr_app_mouse_delta_x(app) * 5.0f, -pntr_app_mouse_delta_y(app) * 5.0f);
+    #endif
+
+    #ifdef PNTR_APP_SDL
     SDL_LockAudio();
     doom_update();
     SDL_UnlockAudio();
@@ -87,12 +95,6 @@ bool Update(pntr_app* app, pntr_image* screen) {
     pntr_image* image = pntr_image_from_pixelformat((const void*)framebuffer, SCREENWIDTH, SCREENHEIGHT, PNTR_PIXELFORMAT_RGBA8888);
     pntr_draw_image(screen, image, 0, 0);
     pntr_unload_image(image);
-
-    #ifdef PNTR_APP_SDL
-    int x, y;
-    SDL_GetRelativeMouseState(&x, &y);
-    doom_mouse_move(x * 4, y * 4);
-    #endif
 
     return keepRunning;
 }
@@ -267,7 +269,9 @@ void Event(pntr_app* app, pntr_app_event* event) {
         }
         break;
         case PNTR_APP_EVENTTYPE_MOUSE_MOVE: {
-            //doom_mouse_move(-event->mouseDeltaX * 100, -event->mouseDeltaY*100);
+            #ifndef PNTR_APP_SDL
+            //doom_mouse_move(-event->mouseDeltaX * 5.0f, -event->mouseDeltaY * 5.0f);
+            #endif
         }
         break;
     }
