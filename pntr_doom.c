@@ -1,7 +1,6 @@
 #include <string.h>
 
 #define PNTR_APP_IMPLEMENTATION
-#define PNTR_ENABLE_DEFAULT_FONT
 #define PNTR_DISABLE_MATH
 #include "pntr_app.h"
 
@@ -37,16 +36,16 @@ void pntr_doom_exit(int code) {
     keepRunning = false;
 }
 
+#ifdef PNTR_APP_SDL
 void audio_callback(void* userdata, Uint8* stream, int len)
 {
-    #ifdef PNTR_APP_SDL
     SDL_LockAudio();
     int16_t* buffer = doom_get_sound_buffer();
     SDL_UnlockAudio();
 
     pntr_memory_copy(stream, buffer, len);
-    #endif
 }
+#endif
 
 bool Init(pntr_app* app) {
     keepRunning = true;
