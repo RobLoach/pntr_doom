@@ -52,7 +52,7 @@ bool Init(pntr_app* app) {
 
     #ifdef PNTR_APP_SDL
     // Capture mouse
-    SDL_SetRelativeMouseMode(SDL_TRUE);
+    //SDL_SetRelativeMouseMode(SDL_TRUE);
 
     // SDL Audio thread
     memset(&audio_spec, 0, sizeof(audio_spec));
@@ -70,24 +70,20 @@ bool Init(pntr_app* app) {
     SDL_PauseAudio(0);
     #endif
 
+    pntr_app_show_mouse(app, false);
+
     return true;
 }
 
 bool Update(pntr_app* app, pntr_image* screen) {
-    #ifdef PNTR_APP_SDL
-    int x, y;
-    SDL_GetRelativeMouseState(&x, &y);
-    doom_mouse_move(x * 4, y * 4);
-    #else
-    doom_mouse_move(-pntr_app_mouse_delta_x(app) * 5.0f, -pntr_app_mouse_delta_y(app) * 5.0f);
-    #endif
+    //doom_mouse_move(pntr_app_mouse_delta_x(app) * 2.0f, pntr_app_mouse_delta_y(app) * 2.0f);
 
     #ifdef PNTR_APP_SDL
     SDL_LockAudio();
-    doom_update();
+    doom_force_update();
     SDL_UnlockAudio();
     #else
-    doom_update();
+    doom_force_update();
     #endif
 
     // Render
@@ -101,7 +97,7 @@ bool Update(pntr_app* app, pntr_image* screen) {
 
 void Close(pntr_app* app) {
     #ifdef PNTR_APP_SDL
-    SDL_SetRelativeMouseMode(SDL_FALSE);
+    //SDL_SetRelativeMouseMode(SDL_FALSE);
     #endif
 }
 
@@ -269,9 +265,7 @@ void Event(pntr_app* app, pntr_app_event* event) {
         }
         break;
         case PNTR_APP_EVENTTYPE_MOUSE_MOVE: {
-            #ifndef PNTR_APP_SDL
-            //doom_mouse_move(-event->mouseDeltaX * 5.0f, -event->mouseDeltaY * 5.0f);
-            #endif
+            doom_mouse_move(event->mouseDeltaX * 10.0f, event->mouseDeltaY * 10.0f);
         }
         break;
     }

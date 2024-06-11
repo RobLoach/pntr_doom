@@ -69,7 +69,10 @@ if (PNTR_DOOM_BUILD_SDL)
     add_executable(pntr_doom_sdl
         pntr_doom.c
     )
-    target_compile_definitions(pntr_doom_sdl PUBLIC PNTR_APP_SDL)
+    target_compile_definitions(pntr_doom_sdl PUBLIC 
+        PNTR_APP_SDL
+        PNTR_PIXELFORMAT_ARGB
+    )
     target_link_libraries(pntr_doom_sdl PRIVATE
         pntr
         pntr_app

@@ -1,3 +1,5 @@
 [submodule "vendor/PureDOOM"]
 	path = vendor/PureDOOM
 	url = https://github.com/Daivuk/PureDOOM.git
+	ignore = dirty
+	branch = master
