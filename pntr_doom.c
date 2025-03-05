@@ -13,7 +13,7 @@
 bool keepRunning;
 
 #ifdef PNTR_APP_SDL
-SDL_AudioSpec audio_spec;
+// SDL_AudioSpec audio_spec;
 #endif
 
 char* pntr_doom_getenv(const char* var) {
@@ -37,14 +37,14 @@ void pntr_doom_exit(int code) {
 }
 
 #ifdef PNTR_APP_SDL
-void audio_callback(void* userdata, Uint8* stream, int len)
-{
-    SDL_LockAudio();
-    int16_t* buffer = doom_get_sound_buffer();
-    SDL_UnlockAudio();
+// void audio_callback(void* userdata, Uint8* stream, int len)
+// {
+//     SDL_LockAudio();
+//     int16_t* buffer = doom_get_sound_buffer();
+//     SDL_UnlockAudio();
 
-    pntr_memory_copy(stream, buffer, len);
-}
+//     pntr_memory_copy(stream, buffer, len);
+// }
 #endif
 
 bool Init(pntr_app* app) {
@@ -55,20 +55,35 @@ bool Init(pntr_app* app) {
     //SDL_SetRelativeMouseMode(SDL_TRUE);
 
     // SDL Audio thread
-    memset(&audio_spec, 0, sizeof(audio_spec));
-    audio_spec.freq = DOOM_SAMPLERATE;
-    audio_spec.format = AUDIO_S16;
-    audio_spec.channels = 2;
-    audio_spec.samples = 512;
-    audio_spec.callback = audio_callback;
+    // memset(&audio_spec, 0, sizeof(audio_spec));
+    // audio_spec.freq = DOOM_SAMPLERATE;
+    // audio_spec.format = AUDIO_S16;
+    // audio_spec.channels = 2;
+    // audio_spec.samples = 512;
+    // audio_spec.callback = audio_callback;
 
-    if (SDL_OpenAudio(&audio_spec, NULL) < 0) {
-        printf("Failed to SDL_OpenAudio\n");
-        return 1;
-    }
+    // if (SDL_OpenAudio(&audio_spec, NULL) < 0) {
+    //     printf("Failed to SDL_OpenAudio\n");
+    //     return 1;
+    // }
 
-    SDL_PauseAudio(0);
+    // SDL_PauseAudio(0);
     #endif
+
+    // Doom callbacks
+    doom_set_malloc(pntr_doom_malloc, pntr_unload_memory);
+    doom_set_exit(pntr_doom_exit);
+    doom_set_getenv(pntr_doom_getenv);
+
+    // Change default bindings to modern
+    doom_set_default_int("key_up", DOOM_KEY_W);
+    doom_set_default_int("key_down", DOOM_KEY_S);
+    doom_set_default_int("key_strafeleft", DOOM_KEY_A);
+    doom_set_default_int("key_straferight", DOOM_KEY_D);
+    doom_set_default_int("key_use", DOOM_KEY_E);
+    doom_set_default_int("mouse_move", 0); // Mouse will not move forward
+
+    doom_init(0, NULL, DOOM_FLAG_MENU_DARKEN_BG);
 
     pntr_app_show_mouse(app, false);
 
@@ -79,9 +94,9 @@ bool Update(pntr_app* app, pntr_image* screen) {
     //doom_mouse_move(pntr_app_mouse_delta_x(app) * 2.0f, pntr_app_mouse_delta_y(app) * 2.0f);
 
     #ifdef PNTR_APP_SDL
-    SDL_LockAudio();
+    // SDL_LockAudio();
     doom_force_update();
-    SDL_UnlockAudio();
+    // SDL_UnlockAudio();
     #else
     doom_force_update();
     #endif
@@ -209,7 +224,7 @@ doom_key_t pntr_doom_key(pntr_app_key key) {
         case PNTR_APP_KEY_KP_9: return DOOM_KEY_9;
         // case PNTR_APP_KEY_KP_DECIMAL: return ;
         // case PNTR_APP_KEY_KP_DIVIDE: return ;
-        // case PNTR_APP_KEY_KP_MULTIPLY: return ;
+        case PNTR_APP_KEY_KP_MULTIPLY: return DOOM_KEY_MULTIPLY;
         // case PNTR_APP_KEY_KP_SUBTRACT: return ;
         // case PNTR_APP_KEY_KP_ADD: return ;
         // case PNTR_APP_KEY_KP_ENTER: return ;
@@ -272,19 +287,6 @@ void Event(pntr_app* app, pntr_app_event* event) {
 }
 
 pntr_app Main(int argc, char* argv[]) {
-
-    // Change default bindings to modern
-    doom_set_default_int("key_up", DOOM_KEY_W);
-    doom_set_default_int("key_down", DOOM_KEY_S);
-    doom_set_default_int("key_strafeleft", DOOM_KEY_A);
-    doom_set_default_int("key_straferight", DOOM_KEY_D);
-    doom_set_default_int("key_use", DOOM_KEY_E);
-    doom_set_default_int("mouse_move", 0); // Mouse will not move forward
-
-    doom_set_malloc(pntr_doom_malloc, pntr_unload_memory);
-    doom_set_exit(pntr_doom_exit);
-    doom_set_getenv(pntr_doom_getenv);
-    doom_init(argc, argv, DOOM_FLAG_MENU_DARKEN_BG);
 
     return (pntr_app) {
         .width = SCREENWIDTH,

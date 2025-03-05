@@ -24,45 +24,38 @@ find_package(pntr_app)
 # SDL
 if (PNTR_DOOM_BUILD_SDL)
     find_package(SDL2 QUIET)
-    if(SDL2_FOUND)
-        message(STATUS "Using SDL2 via find_package")
-    endif()
-    if(NOT SDL2_FOUND)
-        include(FetchContent)
-        set(SDL_SHARED TRUE CACHE BOOL "Build a SDL shared library (if available)")
-        set(SDL_STATIC TRUE CACHE BOOL "Build a SDL static library (if available)")
-        FetchContent_Declare(
-            SDL
-            GIT_REPOSITORY https://github.com/libsdl-org/SDL.git
-            GIT_TAG release-2.30.1  # Replace this with a particular git tag or git hash
-            GIT_SHALLOW TRUE
-            GIT_PROGRESS TRUE
-        )
-        message(STATUS "Using SDL2 via FetchContent")
-        FetchContent_MakeAvailable(SDL)
-        set_property(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/_deps/sdl-src" PROPERTY EXCLUDE_FROM_ALL TRUE)
-    endif()
+    
+    # SDL_mixer
+    set(SDLMIXER_BUILD_SHARED_LIBS false)
+    set(SDLMIXER_VORBIS STB)
+    set(SDLMIXER_INSTALL OFF)
+    set(SDLMIXER_DEPS_SHARED OFF)
+    set(SDLMIXER_VENDORED OFF)
+    set(SDLMIXER_SAMPLES OFF)
+    set(SDLMIXER_CMD OFF)
+    set(SDLMIXER_FLAC OFF)
+    set(SDLMIXER_MOD OFF)
+    set(SDLMIXER_MP3 OFF)
+    set(SDLMIXER_MIDI_NATIVE OFF)
+    set(SDLMIXER_OPUS OFF)
+    set(SDLMIXER_OPUS_SHARED OFF)
+    set(SDLMIXER_MIDI_FLUIDSYNTH OFF)
+    set(SDLMIXER_MP3_MPG123 OFF)
+    set(SDLMIXER_MP3_DRMP3 OFF)
+    set(SDLMIXER_MOD_XMP OFF)
+    set(SDLMIXER_MOD_MODPLUG OFF)
+    set(SDLMIXER_FLAC_DRFLAC OFF)
+    set(SDLMIXER_FLAC_LIBFLAC OFF)
+    set(SDLMIXER_VORBIS_VORBISFILE OFF)
+    set(SDLMIXER_WAVPACK OFF)
+    set(SDLMIXER_SAMPLES_INSTALL OFF)
+    set(SDLMIXER_BUILD_SHARED_LIBS OFF)
+    find_package(SDL3_mixer REQUIRED)
 endif()
 
 # raylib
 if (PNTR_DOOM_BUILD_RAYLIB)
-        # raylib
-    include(FetchContent)
-    FetchContent_Declare(
-        raylib
-        GIT_REPOSITORY https://github.com/raysan5/raylib.git
-        GIT_TAG 5.0
-        GIT_SHALLOW 1
-    )
-    FetchContent_GetProperties(raylib)
-    if (NOT raylib_POPULATED)
-        set(FETCHCONTENT_QUIET NO)
-        FetchContent_Populate(raylib)
-        set(BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
-        set(BUILD_GAMES    OFF CACHE BOOL "" FORCE)
-
-        add_subdirectory(${raylib_SOURCE_DIR} ${raylib_BINARY_DIR})
-    endif()
+    find_package(raylib QUIET)
 endif()
 
 if (PNTR_DOOM_BUILD_SDL)
@@ -76,7 +69,8 @@ if (PNTR_DOOM_BUILD_SDL)
     target_link_libraries(pntr_doom_sdl PRIVATE
         pntr
         pntr_app
-        SDL2::SDL2-static
+        SDL3::SDL3-static
+        SDL3_mixer::SDL3_mixer-static
     )
     target_include_directories(pntr_doom_sdl PUBLIC vendor/PureDOOM)
     set_property(TARGET pntr_doom_sdl PROPERTY C_STANDARD 11)
@@ -90,7 +84,7 @@ if (PNTR_DOOM_BUILD_RAYLIB)
     target_link_libraries(pntr_doom_raylib PRIVATE
         pntr
         pntr_app
-        raylib
+        raylib_static
     )
     target_include_directories(pntr_doom_raylib PUBLIC vendor/PureDOOM)
     set_property(TARGET pntr_doom_raylib PROPERTY C_STANDARD 11)
